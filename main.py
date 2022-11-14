@@ -6,45 +6,64 @@ We just parse input and call methods from other modules.
 
 # do NOT import ways. This should be done from other files
 # simply import your modules and call the appropriate functions
+from collections import deque
 
-import random
-import csv
+import heapq
 
+import tools
 from ways import load_map_from_csv
-
-
-def initialize_search_problems(roads):
-    problems_lst = []
-    for sample in random.sample(range(len(roads.junctions())), 100):
-        start_node = roads[sample]
-        depth = random.randint(0, len(start_node.links))
-        end_node = get_last_node(start_node, depth, roads)
-        problems_lst.append([start_node.index, end_node.index])
-    with open('problems.csv', 'w', newline='') as file:
-        writer = csv.writer(file)
-        for problem in problems_lst:
-            writer.writerow(problem)
-
-
-def get_last_node(node, depth, roads):
-    if depth == 0 or len(node.links) == 0:
-        return node
-    link_indx = random.randint(0, len(node.links) - 1)
-    index = node.links[link_indx].target
-    return get_last_node(roads[index], depth - 1, roads)
+from utils import *
 
 
 def huristic_function(lat1, lon1, lat2, lon2):
-    raise NotImplementedError
+    ###
+    # The function will compute direct distance and devide it by the max speed of all roads == (110).
+    ###
+    max_speed = 110
+    dist = tools.compute_distance(lat1, lon1, lat2, lon2)
+    return dist / max_speed
 
 
 def find_ucs_rout(source, target):
     'call function to find path, and return list of indices'
-    raise NotImplementedError
+    node = [0.0, source, roads[source].links, None]
+    lat = roads[source].lat
+    lon = roads[source].lon
+    frontier = []
+    closed_list = {}
+    heapq.heappush(frontier, node)
+    while frontier:
+        ###
+        # Node => [dist_from_source, current_id, links, parent_id]
+        #         [       0        ,      1    ,   2  ,      3    ]
+        ###
+        node = heapq.heappop(frontier)
+        if node[1] == target:
+            res = get_path(closed_list, source, target)
+            return res
+        # set current Node id to its parent (node[3] -> is the parent of node).
+        parent_id = node[1]
+        # expand node
+        if parent_id not in closed_list:
+            closed_list[parent_id] = None
+        for link in node[2]:
+            child = Node(link.target, node[0] + link.distance, node[1])
+            current_id = child[1]
+            in_frontier, temp_child = is_in_list(child[1], frontier)
+            if child[1] not in closed_list.keys() and (not in_frontier):
+                frontier.append(child)
+                closed_list[current_id] = parent_id
+            elif in_frontier and child[0] < temp_child[0]:
+                frontier.remove(temp_child)
+                heapq.heappush(frontier, child)
+                # update parent id.
+                closed_list[current_id] = parent_id
+    return None, []
 
 
 def find_astar_route(source, target):
     'call function to find path, and return list of indices'
+
     raise NotImplementedError
 
 
@@ -68,6 +87,4 @@ def dispatch(argv):
 if __name__ == '__main__':
     from sys import argv
 
-    # dispatch(argv)
-    roads = load_map_from_csv()
-    initialize_search_problems(roads)
+    dispatch(argv)
