@@ -2,10 +2,12 @@ import random
 import csv
 
 import tools
+from main import find_ucs_rout
 from ways import load_map_from_csv
 
-roads = load_map_from_csv()
+from main import roads
 
+from main import *
 
 def is_in_list(id_, lst):
     for child in lst:
@@ -17,13 +19,9 @@ def is_in_list(id_, lst):
 ###
 # function to create with all necessary values.
 ###
-def Node(current, distance, parent):
+def Node(distance, current, parent):
     return [distance, current,
             roads[current].links, parent]
-
-
-def f(node, lat, lon):
-    return tools.compute_distance(lat1=lat, lon1=lon, lat2=roads[node].lat, lon2=roads[node].lon)
 
 
 def get_last_node(node, depth):
@@ -34,7 +32,7 @@ def get_last_node(node, depth):
     return get_last_node(roads[index], depth - 1)
 
 
-def initialize_search_problems(roads):
+def initialize_search_problems():
     problems_lst = []
     for sample in random.sample(range(len(roads.junctions())), 100):
         start_node = roads[sample]
@@ -45,6 +43,19 @@ def initialize_search_problems(roads):
         writer = csv.writer(file)
         for problem in problems_lst:
             writer.writerow(problem)
+
+
+def ucs_on_problems(filename):
+    import csv
+    problems_list = []
+    with open(filename, mode='r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            problems_list.append([row[0], row[1]])
+    f = open("results/UCSRuns.txt", "w")
+    for problem in problems_list:
+        f.write(find_ucs_rout(int(problem[0]), int(problem[1])))
+    f.close()
 
 
 def get_path(closed_list, source, target):
