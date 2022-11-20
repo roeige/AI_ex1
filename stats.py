@@ -2,6 +2,8 @@
 This file should be runnable to print map_statistics using 
 $ python stats.py
 '''
+
+#Roei Gehassi, 208853754
 import sys
 from collections import namedtuple
 from ways import load_map_from_csv
@@ -42,16 +44,6 @@ def map_statistics(roads):
     res["Link distance"] = Stat(max_link_distance, min_link_distance, sum_link_distance / total_links)
     res["Link type histogram"] = dict(Counter(links_type_list))
     return res
-
-    # return {
-    #     'Number of junctions': None,
-    #     'Number of links': None,
-    #     'Outgoing branching factor': Stat(max=None, min=None, avg=None),
-    #     'Link distance': Stat(max=None, min=None, avg=None),
-    #     # value should be a dictionary
-    #     # mapping each info.ROAD_TYPES to the no' of links of this type
-    #     'Link type histogram': None,  # tip: use collections.Counter
-    # }
 
 
 def print_stats():
