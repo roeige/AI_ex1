@@ -4,8 +4,8 @@
 '''
 
 from collections import namedtuple
-from . import tools
-from . import info
+import tools
+import info
 import sys
 
 #define class Link_traffic_params
